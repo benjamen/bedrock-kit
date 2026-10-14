@@ -127,3 +127,10 @@ test("fog owner: the lowest pack id applies the fog, the same answer in every co
   assert.equal(liveAsks(reqs, 60).length, 1);
   assert.equal(liveAsks(reqs, 100).length, 0);
 });
+
+test("fireAt can tag what it fires, so hit hooks can tell it from a base-game projectile of the same type", async () => {
+  const { readFileSync } = await import("node:fs");
+  const src = readFileSync(new URL("../kit/projectiles.js", import.meta.url), "utf8");
+  assert.match(src, /tag\b.*\} = \{\}/s);
+  assert.match(src, /if \(tag\) e\.addTag\(tag\)/);
+});
