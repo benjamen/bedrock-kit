@@ -161,3 +161,13 @@ test("held-light: the light block is tried by both of its names, the level is he
   assert.equal(mod.lightBlockForms(0)[0].states.block_light_level, 1);
   assert.deepEqual(mod.lightSpot({ x: 3.7, y: 64, z: -1.2 }), { x: 3, y: 65, z: -2 });
 });
+
+test("fog: an exclusive ask (a scene's clear view) is mixed alone, the rest come back when it goes", async () => {
+  const { mixFog } = await import("../kit/fog.js");
+  const mist = { distance: 30, tint: "mist" }, night = { distance: 20, tint: "night" };
+  const together = mixFog([mist, night]);
+  assert.ok(together.distance < 20, "layers add up");
+  const clear = mixFog([mist, night, { distance: 90, tint: "grey", exclusive: true }]);
+  assert.ok(Math.abs(clear.distance - 90) < 1e-9, "only the exclusive ask counts");
+  assert.ok(mixFog([mist, night]).distance < 20, "and without it the layers add up again");
+});
