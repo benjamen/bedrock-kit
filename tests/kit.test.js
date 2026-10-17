@@ -151,3 +151,13 @@ test("a lob lands where it was aimed after the given ticks", () => {
   assert.ok(Math.abs(p.y - to.y) < 0.8, `lands at y ${p.y.toFixed(2)}, not ${to.y}`);
   assert.ok(v.y > 0.5, "a lob should go up first, to clear a wall");
 });
+
+test("held-light: the light block is tried by both of its names, the level is held to 1 to 15, and the spot is at head height", async () => {
+  const src = readFileSync(new URL("../kit/held-light.js", import.meta.url), "utf8");
+  const body = src.slice(src.indexOf("export function lightBlockForms"), src.indexOf("const same ="));
+  const mod = await import(`data:text/javascript,${encodeURIComponent(body)}`);
+  assert.deepEqual(mod.lightBlockForms(12).map((f) => f.id), ["minecraft:light_block", "minecraft:light_block_12"]);
+  assert.equal(mod.lightBlockForms(40)[0].states.block_light_level, 15);
+  assert.equal(mod.lightBlockForms(0)[0].states.block_light_level, 1);
+  assert.deepEqual(mod.lightSpot({ x: 3.7, y: 64, z: -1.2 }), { x: 3, y: 65, z: -2 });
+});

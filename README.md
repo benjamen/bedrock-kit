@@ -44,6 +44,7 @@ Change the kit here, never in a pack's copy: the pack's tests run `--check` and 
 | `temp-blocks.js` | no | Blocks that appear for a moment: only into air, always put back, survives a restart |
 | `projectile-hooks.js` | no | Per-projectile-type hooks for hitting an entity or a block |
 | `tide.js` | yes | A tide on a fixed cycle |
+| `held-light.js` | mostly | A light that goes with the player: a held torch, lantern or candle (the game says which) lights the dark round them by an invisible light block kept at their head; only into air, always taken out, cleaned up after a crash |
 | `forms.js` | no | Reusable forms: a combination lock of digit dials |
 
 "Pure" modules have no Minecraft imports and are fully tested here. The others are thin glue over the Script API and
