@@ -171,3 +171,12 @@ test("fog: an exclusive ask (a scene's clear view) is mixed alone, the rest come
   assert.ok(Math.abs(clear.distance - 90) < 1e-9, "only the exclusive ask counts");
   assert.ok(mixFog([mist, night]).distance < 20, "and without it the layers add up again");
 });
+
+test("fog: mixing the usual layers (island grey, rain grey, mist, night) lands on a grey of the ramp, never on the brown ash or dust", async () => {
+  const { DEFAULT_LADDER, mixFog, snapFog } = await import("../kit/fog.js");
+  for (const night of [30, 60, 120]) {
+    const mix = mixFog([{ distance: 58, tint: "grey" }, { distance: 90, tint: "grey" }, { distance: 28, tint: "mist" }, { distance: night, tint: "night" }]);
+    const tint = snapFog(mix, DEFAULT_LADDER).tint;
+    assert.ok(!["ash", "dust", "snow", "black"].includes(tint), `night ${night} snaps to ${tint}`);
+  }
+});
