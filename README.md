@@ -29,7 +29,8 @@ Change the kit here, never in a pack's copy: the pack's tests run `--check` and 
 | `luminance.js` | yes | Light levels of vanilla blocks and hand-held lights, candles included, with a game's own table on top |
 | `shelter.js` | mostly | Is a point open to the sky (roofs, leaves and glass are cover) |
 | `scene-math.js` | yes | Look rotations, `camera`/`fade` command builders, shot helper, scene checks, actor paths |
-| `scene-player.js` | no | Plays a scene (camera, fades, sounds, commands, HUD, input lock, sneak to skip, always hands back) |
+| `scene-player.js` | no | Plays a scene (camera, fades, sounds, commands, HUD, input lock, sneak to skip, always hands back); `skipScene`, and `cancelScene` to stop one dead for a reset |
+| `ground.js` | no | Where an actor can stand on a column (`standAt`), a clear line of sight (`lineClear`), a cached column sampler |
 | `actors.js` | no | Scene actors: spawn with a tag, hold in place each tick, always removed |
 | `water-zones.js` | yes | Shore distance and depth over a height map; named water zones; nearest spots; spots kept clear of lights |
 | `sea-patrol.js` | no | Keeps water creatures around players in their zones |
