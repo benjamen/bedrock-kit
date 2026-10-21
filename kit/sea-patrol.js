@@ -34,14 +34,30 @@ export function adoptPatrol(entity, zone, home = entity.location) {
   entity.setDynamicProperty(HOME, JSON.stringify({ x: home.x, y: home.y, z: home.z }));
 }
 
+// The top water block over column (x, z): { x, z, y } with y the surface block, or undefined when the column is not open water
+// (land, a pier or roof over it, not loaded). getTopmostBlock skips liquids and answers with the sea floor, so the water is
+// found by climbing from there; a pier's planks are the top block and nothing climbs past them.
+export function waterSurface(dimension, x, z) {
+  try {
+    const top = dimension.getTopmostBlock({ x, z });
+    if (!top) return undefined;
+    if (top.typeId === "minecraft:water") return { x, z, y: top.location.y };
+    let y = top.location.y;
+    while (dimension.getBlock({ x, y: y + 1, z })?.typeId === "minecraft:water") y++;
+    return y > top.location.y ? { x, z, y } : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 // The block a water creature can be put in at column (x, z): `below` blocks under the surface, if that is still
 // water. Undefined when the column is not water, not loaded, or too shallow.
 function waterSpot(dimension, x, z, below) {
+  const top = waterSurface(dimension, x, z);
+  if (!top) return undefined;
   try {
-    const top = dimension.getTopmostBlock({ x, z });
-    if (!top || top.typeId !== "minecraft:water") return undefined;
-    const y = top.location.y - below;
-    for (let cy = y; cy <= top.location.y; cy++) if (dimension.getBlock({ x, y: cy, z })?.typeId !== "minecraft:water") return undefined;
+    const y = top.y - below;
+    for (let cy = y; cy <= top.y; cy++) if (dimension.getBlock({ x, y: cy, z })?.typeId !== "minecraft:water") return undefined;
     return { x: x + 0.5, y, z: z + 0.5 };
   } catch {
     return undefined;
