@@ -55,7 +55,8 @@ function take(placed) {
   }
 }
 
-// `counts(typeId)`: does holding this item give light. `level`: how bright (1 to 15). `held(player)`: the type id of the
+// `counts(typeId)`: does holding this item give light. `level`: how bright (1 to 15), or a function of the player returning it (a game can dim the
+// light in a place that should stay dark). `held(player)`: the type id of the
 // item in the player's hand, if the game has its own way to read it (defaults to the selected hotbar slot).
 export function startHeldLight({ counts, level = 12, held, log = () => {} }) {
   // Clean up whatever a last run left (world properties cannot be touched while the scripts are first loading).
@@ -77,8 +78,10 @@ export function startHeldLight({ counts, level = 12, held, log = () => {} }) {
   system.runInterval(() => {
     for (const player of world.getAllPlayers()) {
       let want;
+      let lvl = level;
       try {
-        want = counts(heldOf(player) ?? "") ? lightSpot(player.location) : undefined;
+        lvl = typeof level === "function" ? level(player) : level;
+        want = lvl > 0 && counts(heldOf(player) ?? "") ? { ...lightSpot(player.location), level: lvl } : undefined;
       } catch {
         want = undefined;
       }
@@ -87,10 +90,10 @@ export function startHeldLight({ counts, level = 12, held, log = () => {} }) {
         release(player.id);
         continue;
       }
-      if (same(now, want) && player.dimension.id === now.dim) continue;
+      if (same(now, want) && now.level === want.level && player.dimension.id === now.dim) continue;
       try {
         const block = player.dimension.getBlock(want);
-        const perm = lightPermutation(level);
+        const perm = lightPermutation(want.level);
         if (!block || !perm || !(block.isAir || isLight(block))) continue; // never into anything solid
         const old = now;
         block.setPermutation(perm);
