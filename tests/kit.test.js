@@ -180,3 +180,11 @@ test("fog: mixing the usual layers (island grey, rain grey, mist, night) lands o
     assert.ok(!["ash", "dust", "snow", "black"].includes(tint), `night ${night} snaps to ${tint}`);
   }
 });
+
+test("playScene still calls onEnd when the player is gone, so onTick's own actors are not left behind for good", () => {
+  const src = readFileSync(new URL("scene-player.js", KIT), "utf8");
+  const body = src.slice(src.indexOf("const timer = system.runInterval"), src.lastIndexOf("try {"));
+  assert.match(body, /if \(!p\) \{/);
+  assert.match(body, /onEnd\?\.\(undefined, \{ skipped: false, failed: false, disconnected: true \}\)/);
+  assert.match(src, /try \{\s*onEnd\?\.\(undefined/, "the call itself is guarded: an onEnd written for a live player must not crash the cleanup");
+});

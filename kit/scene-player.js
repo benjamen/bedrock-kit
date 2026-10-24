@@ -90,6 +90,15 @@ export function playScene(player, scene, { skippable = true, onTick, onEnd, log 
       playing.delete(id);
       skipping.delete(id);
       system.clearRun(timer);
+      // The player is gone (they left mid-scene): there is no one to stand or hand controls back to, but onEnd still runs,
+      // so whatever onTick spawned (an actor playing a boat, a ghost, anything with `removeActors`) is not left behind for
+      // good - a scene that never gets this far just leaks it, found by two Wren boats existing at once after a disconnect
+      // mid-escape, since nothing else ever swept up the one from the run that was never finished.
+      try {
+        onEnd?.(undefined, { skipped: false, failed: false, disconnected: true });
+      } catch (e) {
+        log?.(`scene onEnd failed (player gone): ${e}`);
+      }
       return;
     }
     try {
